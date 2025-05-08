@@ -1,0 +1,29 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot
+  namespace: chatbot
+  labels:
+    app: chatbot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot
+  template:
+    metadata:
+      labels:
+        app: chatbot
+    spec:
+      containers:
+        - name: chatbot
+          image: registry.gitlab.com/f5-public/chatbot:v0.8
+          ports:
+            - name: http
+              containerPort: 8501
+              protocol: TCP
+          env:
+            - name: OPENAI_API_BASE
+              value: "http://node-proxy.node-proxy.svc.cluster.local:3000/v1"
+#              value: "http://aigw.ai-gateway.svc.cluster.local:80/v1"
