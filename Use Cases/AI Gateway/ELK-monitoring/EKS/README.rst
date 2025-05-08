@@ -1,4 +1,4 @@
-**AIGW deployed on AWS EKS, monitored by EKS and MinIO**
+**AIGW deployed on AWS EKS, monitored by ELK and MinIO**
 ###############################################################
 
 Setup Diagram
