@@ -399,29 +399,19 @@ resource "helm_release" "aigw" {
 # Telemetry - ELK
 ################################################################################
 
-data "kubectl_path_documents" "elastic-ns-manifest" {
-  pattern = "${path.module}/telemetry/elastic-ns.yaml"
-}
-
-resource "kubectl_manifest" "elastic-ns" {
-  count     = length(data.kubectl_path_documents.elastic-ns-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.elastic-ns-manifest.documents, count.index)
-
-  depends_on = [helm_release.aigw]
-}
-
 resource "helm_release" "elasticsearch" {
   name             = "elasticsearch"
   repository       = "https://helm.elastic.co"
   chart            = "elasticsearch"
   namespace        = "elastic"
+  create_namespace = true
 
   set {
     name = "replicas"
     value = "1"
   }
 
-  depends_on = [kubectl_manifest.elastic-ns]
+  depends_on = [helm_release.aigw]
 }
 
 resource "helm_release" "apm-server" {
@@ -464,26 +454,16 @@ resource "helm_release" "otel-collector" {
 # Audit (AIGW transactions) - MinIO
 ################################################################################
 
-data "kubectl_path_documents" "audit-ns-manifest" {
-  pattern = "${path.module}/audit/audit-ns.yaml"
-}
-
-resource "kubectl_manifest" "audit-ns" {
-  count     = length(data.kubectl_path_documents.audit-ns-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.audit-ns-manifest.documents, count.index)
-
-  depends_on = [helm_release.otel-collector]
-}
-
 resource "helm_release" "minio" {
   name             = "minio"
   repository       = "oci://registry-1.docker.io/bitnamicharts"
   chart            = "minio"
   namespace        = "audit"
+  create_namespace = true
 
   values = ["${file("audit/minio.yaml")}"]
 
-  depends_on = [kubectl_manifest.audit-ns]
+  depends_on = [helm_release.otel-collector]
 }
 
 
