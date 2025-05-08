@@ -4,8 +4,8 @@
 locals {
   name   = "ai-gateway"
 
-  # Required us-east-1 for public ECR where Karpenter artifacts are hosted
-  region = "us-east-1"
+  # May require us-east-1 for public ECR where Karpenter artifacts are hosted
+  region = "us-west-2"
 
   vpc_cidr   = "10.0.0.0/16"
   num_of_azs = 2
@@ -31,7 +31,7 @@ provider "volterra" {
   url              = "https://<tenant_name>.console.ves.volterra.io/api"
 }
 
-# Required us-east-1 for public ECR where Karpenter artifacts are hosted
+# May require us-east-1 for public ECR where Karpenter artifacts are hosted
 provider "aws" {
   region = local.region
   alias  = local.region
