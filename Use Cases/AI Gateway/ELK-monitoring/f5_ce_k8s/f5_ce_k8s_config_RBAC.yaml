@@ -1,0 +1,121 @@
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: volterra-sa
+  namespace: ves-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: volterra-admin-role
+  namespace: ves-system
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: volterra-admin-role-binding
+  namespace: ves-system
+subjects:
+- kind: ServiceAccount
+  name: volterra-sa
+  apiGroup: ""
+  namespace: ves-system
+roleRef:
+  kind: Role
+  name: volterra-admin-role
+  apiGroup: rbac.authorization.k8s.io
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vpm-sa
+  namespace: ves-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: vpm-role
+  namespace: ves-system
+rules:
+- apiGroups: ["*"]
+  resources: ["*"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vpm-cluster-role
+  namespace: ves-system
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vpm-role-binding
+  namespace: ves-system
+subjects:
+- kind: ServiceAccount
+  name: vpm-sa
+  apiGroup: ""
+  namespace: ves-system
+roleRef:
+  kind: Role
+  name: vpm-role
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: vpm-sa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: vpm-cluster-role
+subjects:
+- kind: ServiceAccount
+  name: vpm-sa
+  namespace: ves-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: ver
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: ver
+  namespace: ves-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vpm-cfg
+  namespace: ves-system
+data:
+ config.yaml: |
+  Vpm:
+    ClusterName: aigw-eks
+    ClusterType: ce
+    Config: /etc/vpm/config.yaml
+    DisableModules: ["recruiter"]
+    Latitude: 45
+    Longitude: -122
+    MauriceEndpoint: https://register.ves.volterra.io
+    MauricePrivateEndpoint: https://register-tls.ves.volterra.io
+    PrivateNIC: eth0
+    SkipStages: ["osSetup", "etcd", "kubelet", "master", "voucher", "workload", "controlWorkload", "csi"]
+    Token: <your-token-here>
+    CertifiedHardware: k8s-minikube-voltmesh
+---
