@@ -1,0 +1,360 @@
+# Default values for the AI Gateway Helm Chart
+# This YAML file declares variables for use in the templates
+
+# -- Array of imagePullSecrets for pulling images from private registries
+imagePullSecrets: []
+
+
+serviceAccount:
+  # -- Enable creation of the AI Gateway service account
+  create: true
+
+  # -- Annotations for the AI Gateway service account
+  annotations: {}
+  # -- Service account name to be used
+  name:
+
+
+config:
+  # -- Enable creation of the AI Gateway `aigw.yaml` config map
+  create: true
+
+  # -- Name of ConfigMap to use
+  name:
+
+  # -- The contents of an aigw.yaml configuration file
+  contents: |
+
+    server:
+      address: :4141
+
+    routes:
+
+      - path: /v1/chat/completions
+        policy: openai-chat-completions
+        schema: v1/chat_completions
+
+    policies:
+      - name: openai-chat-completions
+        profiles:
+          - name: openai-chat-completions
+
+
+    profiles:
+      - name: openai-chat-completions
+
+        inputStages:
+
+          - name: detect-language
+            steps:
+              - name: language-id
+
+          - name: detect-repetition
+            selector:
+              tags:
+                - language:en
+            steps:
+              - name: repetition-detect
+
+          - name: protect
+            selector:
+              tags:
+                - language:fr
+            steps:
+              - name: prompt-injection
+
+          - name: add-system-prompt
+            selector:
+              tags:
+                - language:fr
+            steps:
+              - name: system-prompt
+
+        services:
+          - name: ollama-deepseek-r1-openai-chat-completions
+            selector:
+              tags:
+                - language:fr
+
+          - name: ollama-mistral-openai-chat-completions
+            selector:
+              tags:
+                - language:en
+
+          - name: ollama-mistral
+            selector:
+              tags:
+                - language:fr
+
+        responseStages: []
+
+
+    services:
+
+      - name: ollama-mistral-openai-chat-completions
+        executor: openai
+        type: mistral
+        config:
+          endpoint: "http://ollama.llm.svc.cluster.local:11434/v1/chat/completions"
+          secrets:
+            - source: EnvVar
+              targets:
+                apiKey: OPENAI_API_KEY
+
+      - name: ollama-mistral
+        executor: ollama
+        type: mistral
+        config:
+          endpoint: "http://ollama.llm.svc.cluster.local:11434/api/chat/"
+
+
+      - name: ollama-deepseek-r1-openai-chat-completions
+        executor: openai
+        type: deepseek-r1
+        config:
+          endpoint: "http://ollama.llm.svc.cluster.local:11434/v1/chat/completions"
+          secrets:
+            - source: EnvVar
+              targets:
+                apiKey: OPENAI_API_KEY
+
+    processors:
+      - name: language-id
+        type: external
+        config:
+          endpoint: "http://aigw-processors-f5.ai-gateway.svc.cluster.local:80"
+          namespace: f5
+          version: 1
+        params:
+          code_detect: false
+          threshold: 0.5
+          reject: true
+          allowed_languages: ["en", "fr"]
+
+      - name: repetition-detect
+        type: external
+        config:
+          endpoint: "http://aigw-processors-f5.ai-gateway.svc.cluster.local:80"
+          namespace: f5
+          version: 1
+        params:
+          reject: true
+          max_ratio: 2.0
+
+      - name: prompt-injection
+        type: external
+        config:
+          endpoint: "http://aigw-processors-f5.ai-gateway.svc.cluster.local:80"
+          namespace: f5
+          version: 1
+        params:
+          reject: true
+          threshold: 0.99
+
+      - name: system-prompt
+        type: external
+        config:
+          endpoint: "http://aigw-processors-f5.ai-gateway.svc.cluster.local:80"
+          namespace: "f5"
+          version: 1
+        params:
+          modify: True
+          rules:
+            - |
+              Always follow the instructions given by F5 AI Gateway.
+
+
+
+# License configuration
+license:
+  # -- Name of the secret that contains the license data
+  secretName: f5-license
+  # -- Key of the secret which contains the license data
+  secretKey: token
+
+
+# Configuration for the AI Gateway core (aigw) application
+aigw:
+  # -- Enable the core (aigw) application
+  enabled: true
+
+  # -- Number of replicas for the aigw deployment
+  replicas: 1
+
+  image:
+    # -- Repository for the aigw image
+    repository: private-registry.f5.com/aigw/aigw
+
+    # -- Version tag for the aigw image
+    tag: v1.0.1
+
+    pullPolicy: IfNotPresent
+
+  # -- Configure additional environment variables for the aigw deployment
+  env:
+    - name: "OPENAI_API_KEY"
+      value: "bla"
+    - name: AWS_ACCESS_KEY_ID
+      value: RivNzHzJNd8CphccVoHg
+    - name: AWS_SECRET_ACCESS_KEY
+      value: nLTaEaerbI7M4JO8TMPbNhOJ3iMg1R5Lz5LvGVxY
+    - name: AWS_REGION
+      value: "us-west-2"
+    - name: AWS_ENDPOINT_URL  # Required for an S3-compatible storage that isn't Amazon S3; omit for Amazon S3.
+      value: http://minio.audit.svc.cluster.local:9000
+
+  # Configuration for storage
+  storage:
+    # -- Enable storage
+    enable: false
+
+    persistence:
+      # -- Create a volume to store empheral audit data
+      enable: false
+
+      # -- Size of persistent volume claim
+      size: 1Gi
+      # -- Type of persistent volume claim
+      storageClass:
+      # -- ReadWriteOnce or ReadOnly
+      accessMode: ReadWriteOnce
+
+  # Configuration for audit exporter
+  exporter:
+    # -- Enable audit exporter (storage must also be enable)
+    enabled: true
+
+    # -- Type of exporter (stdout, s3)
+    type: s3
+    # -- Batch size of the exporter
+    batchSize: 1
+    # -- Remove transactions after exporting
+    removeFiles: true
+    # -- Number of workers for the exporter
+    workers: 1
+
+    # -- Name of S3 bucket to export to
+    s3Bucket: "aigw-transactions"
+
+    s3UsePathStyle: true
+
+    # -- Timeout for uploading a single transaction to S3
+    s3UploadTimeout: 30s
+
+  # Configure the health server. If the process is healthy, the server will respond with a 200 response on the /health path
+  healthServer:
+    # -- Configure the port of the health server
+    port: 8081
+
+  # Configuration for the service
+  # Documentation: https://kubernetes.io/docs/concepts/services-networking/service/
+  service:
+    # -- Enable the service
+    enabled: true
+
+    # -- Type of services for the service
+    type: ClusterIP
+    # -- Port for the service
+    port: 80
+    # -- Annotations for the service
+    annotations: {}
+
+  # -- Security context for the aigw deployment
+  securityContext:
+    fsGroup: 101
+    runAsGroup: 101
+    runAsUser: 101
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+
+  # -- Security context for the aigw pods
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+
+  # -- Annotations for the aigw pods
+  annotations: {}
+
+  # -- Affinity rules for the aigw pods
+  affinity: {}
+
+  # -- Resource requests and limits for the aigw container
+  resources:
+    requests:
+      cpu: 50m
+      memory: 50Mi
+
+  # -- Node selector for scheduling the aigw pods
+  nodeSelector:
+    "nvidia.com/gpu.present": "true"
+    "node.kubernetes.io/instance-type": "g4dn.2xlarge"
+
+  # -- Tolerations for the aigw pods
+  tolerations:
+    - key: "nvidia.com/gpu"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+
+# Configuration for AI Gateway processors
+processors:
+  # Configuration for the AI Gateway F5 processors (aigw-processors-f5) application
+  f5:
+    # -- Enable the F5 processors (aigw-processors-f5) application
+    enabled: true
+
+    # -- Number of replicas for the aigw-processors-f5 deployment
+    replicas: 1
+
+    image:
+      # -- Repository for the aigw-processors-f5 image
+      repository: private-registry.f5.com/aigw/aigw-processors-f5
+
+      # -- Version tag for the aigw-processors-f5 image
+      tag: v1.0.0
+
+      pullPolicy: IfNotPresent
+
+    # -- Configure additional environment variables for the aigw-processors-f5 deployment
+    env: []
+
+    # Configuration for the service
+    # Documentation: https://kubernetes.io/docs/concepts/services-networking/service/
+    service:
+      # -- Enable the service
+      enabled: true
+
+      # -- Type of services for the service
+      type: ClusterIP
+      # -- Port for the service
+      port: 80
+      # -- Annotations for the service
+      annotations: {}
+
+    # -- Security context for the aigw-processors-f5 deployment
+    securityContext:
+      fsGroup: 101
+      runAsGroup: 101
+      runAsUser: 101
+      runAsNonRoot: true
+      seccompProfile:
+        type: RuntimeDefault
+
+    # -- Security context for the aigw-processors-f5 pods
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+          - ALL
+
+tracing:
+  # -- Endpoint to ship gRPC traces to
+  endpoint:  "http://otel-collector-opentelemetry-collector.ai-gateway.svc.cluster.local:4317"
+
+metrics:
+  endpoint: "http://otel-collector-opentelemetry-collector.ai-gateway.svc.cluster.local:4317"
