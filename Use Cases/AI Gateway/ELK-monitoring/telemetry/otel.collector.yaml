@@ -18,25 +18,15 @@ config:
       tls:
         insecure: true
 
-    prometheusremotewrite:
-      endpoint: "http://prometheus-server.prometheus.svc.cluster.local:80/api/v1/write"
-      tls:
-        insecure: true
-
-    otlp/jaeger:
-      endpoint: "http://jaeger-collector.jaeger.svc.cluster.local:4317"
-      tls:
-        insecure: true
-
 
   service:
     pipelines:
       traces:
         receivers: [otlp]
-        exporters: [otlp, otlp/jaeger]
+        exporters: [otlp]
       metrics:
         receivers: [otlp]
-        exporters: [otlp, prometheusremotewrite]
+        exporters: [otlp]
       logs:
         receivers: [otlp]
         exporters: [otlp]
