@@ -5,4 +5,4 @@ Setup Diagram
 ***************
 
 
-.. figure:: assets/AIGW_XC_ELK.jpeg
+.. figure:: assets/XC_AIGW_ELK.jpeg
