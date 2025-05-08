@@ -195,9 +195,9 @@ aigw:
     - name: "OPENAI_API_KEY"
       value: "bla"
     - name: AWS_ACCESS_KEY_ID
-      value: RivNzHzJNd8CphccVoHg
+      value: <Your-AWS-Access-Key-Here>
     - name: AWS_SECRET_ACCESS_KEY
-      value: nLTaEaerbI7M4JO8TMPbNhOJ3iMg1R5Lz5LvGVxY
+      value: <Your-AWS-Secret-Key-Here>
     - name: AWS_REGION
       value: "us-west-2"
     - name: AWS_ENDPOINT_URL  # Required for an S3-compatible storage that isn't Amazon S3; omit for Amazon S3.
