@@ -1,0 +1,24 @@
+cluster:
+  name: "valentin-ai-gateway"  # Cluster configuration, including the cluster name
+
+destinations:
+  - name: hostedLogs
+    type: loki
+    url: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
+
+
+# Features to enable, which determines what data to collect
+clusterMetrics:
+  enabled: false
+
+clusterEvents:
+  enabled: false
+
+podLogs:
+  enabled: true
+
+# Telemetry collector definitions
+alloy-metrics: {}
+alloy-singleton: {}
+alloy-logs:
+  enabled: true

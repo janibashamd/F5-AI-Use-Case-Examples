@@ -1,0 +1,23 @@
+collector:
+  service:
+    grpc:
+      port: 14250
+      # nodePort:
+    # httpPort: can accept spans directly from clients in jaeger.thrift format
+    http:
+      port: 14268
+      # nodePort:
+    # can accept Zipkin spans in JSON or Thrift
+    zipkin:
+      {}
+      # port: 9411
+      # nodePort:
+    otlp:
+      grpc:
+        name: otlp-grpc
+        port: 4317
+        # nodePort:
+      http:
+        name: otlp-http
+        port: 4318
+        # nodePort:
