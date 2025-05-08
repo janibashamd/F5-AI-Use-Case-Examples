@@ -4,8 +4,8 @@
 locals {
   name   = "ai-gateway"
 
-  # Required us-east-1 for public ECR where Karpenter artifacts are hosted
-  region = "us-east-1"
+  # May require us-east-1 for public ECR where Karpenter artifacts are hosted
+  region = "us-west-2"
 
   vpc_cidr   = "10.0.0.0/16"
   num_of_azs = 2
@@ -31,7 +31,7 @@ provider "volterra" {
   url              = "https://<tenant_name>.console.ves.volterra.io/api"
 }
 
-# Required us-east-1 for public ECR where Karpenter artifacts are hosted
+# May require us-east-1 for public ECR where Karpenter artifacts are hosted
 provider "aws" {
   region = local.region
   alias  = local.region
@@ -377,7 +377,7 @@ resource "kubectl_manifest" "aigw-secrets" {
 resource "helm_release" "aigw" {
   name             = "aigw"
   repository       = "oci://private-registry.f5.com/aigw"
-  repository_username = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRyaWFsIn0.eyJpc3MiOiJuZ2lueCBpc3N1ZXIiLCJpYXQiOjE3Mzc0MTExMjMsImp0aSI6IjE5MDAyIiwic3ViIjoiSTAwMDEzNjIwMSIsImV4cCI6MTc2ODk0NzEyM30.JzMDw1sGWYMNW2A-nVGJSCX0yrqnEqD_mM2IAHTs_grCTRHhYmx6x-Cr6-guPSenBwS0YeEc4aI-l9VGH72VNOx6lGu1JNccoDQv0o0HmD3JPdqYcteElWMcMLdNu9RVlqrg9D2f1hbLtzNcWN_g8cBZq9ybhkm-RLh1C0c7x9GA1k9oEQtvOxhUufc6uQeJjUBer61klCCOkUjUR0YttVTOzXrKmBBi5A76WNpTRxQD82gFOLmcMYp-QZ3rffiS9eRqIoC-woNlk4rnr6c37zAbmXo_nwl5zw-iWFX_pQxbhtNCCzP_Yp7rN0gyS_iBOoeOFzO_p63HdfmaeoMLuP6RSKzauPMm89yNao_Uu8xWrjyRpCctsC6F1Ibjh4HG6quAC6E27xPpinGE9mdwc8BtiVqand6jegWzM_Vy0v0fAituok-St0f07xyhYfkV3GePY2DKP5mzLrle6YRFl-jir4e5QXcDXP7pudDHdxSNxno7LicFqEjMKLamEcEs"
+  repository_username = "<Your-NGINX-ONE-JWT-auth-secret-here>"
   repository_password = "none"
   chart            = "aigw"
   namespace        = "ai-gateway"
@@ -395,116 +395,6 @@ resource "helm_release" "aigw" {
 }
 
 
-
-################################################################################
-# AI Gateway manifests
-################################################################################
-#data "kubectl_path_documents" "aigw-ns-manifest" {
-#  pattern = "${path.module}/ai-gateway/aigw-manifests/aigw-ns.yaml"
-#}
-
-#resource "kubectl_manifest" "aigw-ns" {
-#  count     = length(data.kubectl_path_documents.aigw-ns-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.aigw-ns-manifest.documents, count.index)
-#
-#  depends_on = [helm_release.ollama]
-#}
-
-#data "kubectl_path_documents" "aigw-secrets-manifest" {
-#  pattern = "${path.module}/ai-gateway/aigw-manifests/aigw-secrets.yaml"
-#}
-
-#resource "kubectl_manifest" "aigw-secrets" {
-#  count     = length(data.kubectl_path_documents.aigw-secrets-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.aigw-secrets-manifest.documents, count.index)
-#
-#  depends_on = [kubectl_manifest.aigw-ns]
-#}
-
-#data "kubectl_path_documents" "aigw-conf-sa-manifest" {
-#  pattern = "${path.module}/ai-gateway/aigw-manifests/aigw-conf-sa.yaml"
-#}
-
-#resource "kubectl_manifest" "aigwt-conf-sa" {
-#  count     = length(data.kubectl_path_documents.aigw-conf-sa-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.aigw-conf-sa-manifest.documents, count.index)
-#
-#  depends_on = [kubectl_manifest.aigw-secrets]
-#}
-
-#data "kubectl_path_documents" "aigw-services-manifest" {
-#  pattern = "${path.module}/ai-gateway/aigw-manifests/aigw-services.yaml"
-#}
-
-#resource "kubectl_manifest" "aigw-services" {
-#  count     = length(data.kubectl_path_documents.aigw-services-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.aigw-services-manifest.documents, count.index)
-#
-#  depends_on = [kubectl_manifest.aigwt-conf-sa]
-#}
-
-#data "kubectl_path_documents" "aigw-deployments-manifest" {
-#  pattern = "${path.module}/ai-gateway/aigw-manifests/aigw-deployments.yaml"
-#}
-
-#resource "kubectl_manifest" "aigw-deployments" {
-#  count     = length(data.kubectl_path_documents.aigw-deployments-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.aigw-deployments-manifest.documents, count.index)
-#
-#  depends_on = [kubectl_manifest.aigw-services]
-#}
-
-################################################################################
-# Telemetry - ELK
-################################################################################
-
-#data "kubectl_path_documents" "elastic-ns-manifest" {
-#  pattern = "${path.module}/telemetry/elastic-ns.yaml"
-#}
-
-#resource "kubectl_manifest" "elastic-ns" {
-#  count     = length(data.kubectl_path_documents.elastic-ns-manifest.documents)
-#  yaml_body = element(data.kubectl_path_documents.elastic-ns-manifest.documents, count.index)
-#
-#  depends_on = [helm_release.aigw]
-#}
-
-resource "helm_release" "elasticsearch" {
-  name             = "elasticsearch"
-  repository       = "https://helm.elastic.co"
-  chart            = "elasticsearch"
-  namespace        = "elastic"
-  create_namespace = true
-
-  set {
-    name = "replicas"
-    value = "1"
-  }
-
-  depends_on = [helm_release.aigw]
-}
-
-resource "helm_release" "apm-server" {
-  name             = "apm-server"
-  repository       = "https://helm.elastic.co"
-  chart            = "apm-server"
-  namespace        = "elastic"
-
-  values = ["${file("telemetry/apm.server.yaml")}"]
-
-  depends_on = [helm_release.elasticsearch]
-}
-
-resource "helm_release" "kibana" {
-  name             = "kibana"
-  repository       = "https://helm.elastic.co"
-  chart            = "kibana"
-  namespace        = "elastic"
-
-  depends_on = [helm_release.apm-server]
-}
-
-
 ################################################################################
 # Telemetry - Prometheus/Grafana
 ################################################################################
@@ -518,7 +408,7 @@ resource "helm_release" "prometheus" {
 
   values = ["${file("telemetry/prometheus.yaml")}"]
 
-  depends_on = [helm_release.kibana]
+  depends_on = [helm_release.aigw]
 }
 
 resource "helm_release" "grafana" {
@@ -551,26 +441,16 @@ resource "helm_release" "otel-collector" {
 # Audit (AIGW transactions) - MinIO
 ################################################################################
 
-data "kubectl_path_documents" "audit-ns-manifest" {
-  pattern = "${path.module}/audit/audit-ns.yaml"
-}
-
-resource "kubectl_manifest" "audit-ns" {
-  count     = length(data.kubectl_path_documents.audit-ns-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.audit-ns-manifest.documents, count.index)
-
-  depends_on = [helm_release.otel-collector]
-}
-
 resource "helm_release" "minio" {
   name             = "minio"
   repository       = "oci://registry-1.docker.io/bitnamicharts"
   chart            = "minio"
   namespace        = "audit"
+  create_namespace = true
 
   values = ["${file("audit/minio.yaml")}"]
 
-  depends_on = [kubectl_manifest.audit-ns]
+  depends_on = [helm_release.otel-collector]
 }
 
 
@@ -625,43 +505,6 @@ resource "helm_release" "jaeger" {
 
 
 ################################################################################
-# Damn Vulnerable LLM Agent manifest
-################################################################################
-data "kubectl_path_documents" "dvla-ns-manifest" {
-  pattern = "${path.module}/dvla/dvla_ns.yaml"
-}
-
-resource "kubectl_manifest" "dvla-ns" {
-  count     = length(data.kubectl_path_documents.dvla-ns-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.dvla-ns-manifest.documents, count.index)
-
-  depends_on = [helm_release.jaeger]
-}
-
-data "kubectl_path_documents" "dvla-deployment-manifest" {
-  pattern = "${path.module}/dvla/dvla_deployment.yaml"
-}
-
-resource "kubectl_manifest" "dvla-deployment" {
-  count     = length(data.kubectl_path_documents.dvla-deployment-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.dvla-deployment-manifest.documents, count.index)
-
-  depends_on = [kubectl_manifest.dvla-ns]
-}
-
-data "kubectl_path_documents" "dvla-service-manifest" {
-  pattern = "${path.module}/dvla/dvla_service.yaml"
-}
-
-resource "kubectl_manifest" "dvla-service" {
-  count     = length(data.kubectl_path_documents.dvla-service-manifest.documents)
-  yaml_body = element(data.kubectl_path_documents.dvla-service-manifest.documents, count.index)
-
-  depends_on = [kubectl_manifest.dvla-deployment]
-}
-
-
-################################################################################
 # Chatbot
 ################################################################################
 data "kubectl_path_documents" "chatbot-ns-manifest" {
@@ -672,7 +515,7 @@ resource "kubectl_manifest" "chatbot-ns" {
   count     = length(data.kubectl_path_documents.chatbot-ns-manifest.documents)
   yaml_body = element(data.kubectl_path_documents.chatbot-ns-manifest.documents, count.index)
 
-  depends_on = [kubectl_manifest.dvla-service]
+  depends_on = [helm_release.jaeger]
 }
 
 data "kubectl_path_documents" "chatbot-deployment-manifest" {
@@ -948,68 +791,6 @@ resource "volterra_http_loadbalancer" "minio" {
 }
 
 
-resource "volterra_origin_pool" "kibana" {
-  name                   = "kibana"
-  namespace              = local.f5_xc_namespace
-  endpoint_selection     = "LOCAL_PREFERRED"
-  loadbalancer_algorithm = "LB_OVERRIDE"
-
-  origin_servers {
-    k8s_service {
-      service_name  = kibana-kibana.elastic
-      outside_network = true
-      site_locator {
-        site {
-          name      = "aigw-eks"
-          namespace = "system"
-          }
-        }
-      }
-  }
-
-  port = "5601"
-
-  no_tls = true
-
-  depends_on = [volterra_http_loadbalancer.minio]
-}
-
-resource "volterra_http_loadbalancer" "kibana" {
-
-  name                   = "kibana"
-  namespace              = local.f5_xc_namespace
-  description            = format("HTTPS loadbalancer object for Kibana/ELK origin server")
-
-  advertise_on_public_default_vip = true
-
-  domains                = local.f5_xc_kibana_dns
-
-  https_auto_cert {
-    add_hsts              = false
-    http_redirect         = true
-    no_mtls               = true
-    enable_path_normalize = true
-    tls_config {
-      default_security = true
-    }
-  }
-
-  default_route_pools {
-      pool {
-        name = "kibana"
-        namespace = local.f5_xc_namespace
-      }
-      weight = 1
-  }
-
-  app_firewall {
-    name = "default"
-    namespace = "shared"
-  }
-
-  depends_on =  [volterra_origin_pool.kibana]
-
-}
 
 resource "volterra_origin_pool" "prometheus" {
   name                   = "prometheus"
@@ -1034,7 +815,7 @@ resource "volterra_origin_pool" "prometheus" {
 
   no_tls = true
 
-  depends_on = [volterra_http_loadbalancer.kibana]
+  depends_on = [volterra_http_loadbalancer.minio]
 }
 
 resource "volterra_http_loadbalancer" "prometheus" {
