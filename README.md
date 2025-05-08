@@ -9,8 +9,13 @@ Examples of F5 AI Use Cases utilizing Terraform. For more information on the use
 
   | **DevCentral Overview Articles**                                                                                                                          | **Use Case**                                                                                                                                                | **Deployment**                                          |
   | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -----------|
-  | [*Coming soon*]() | [Monitor F5 AI Gateway with OTel, ELK and MinIO](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/blob/main/Use%20Cases/AI%20Gateway/ELK-monitoring/README.rst)                         |  [XC + AWS EKS](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/tree/main/Use%20Cases/AI%20Gateway/ELK-monitoring/EKS)   |
-  | [*Coming soon*]() | [Monitor F5 AI Gateway with OTel, Prometheus/Grafana/Loki, Jaeger and MinIO](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/blob/main/Use%20Cases/AI%20Gateway/Prometheus-Grafana-Loki-Jaeger-monitoring/README.rst) |   [XC + AWS EKS](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/tree/main/Use%20Cases/AI%20Gateway/Prometheus-Grafana-Loki-Jaeger-monitoring/EKS)   |
+  | [*Coming soon*]() | [Monitor F5 AI Gateway with OTel, ELK and MinIO](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/blob/main/Use%20Cases/AI%20Gateway/ELK-monitoring/README.rst)                         |  [XC + AWS EKS](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/tree/main/Use%20Cases/AI%20Gateway/ELK-monitoring/EKS)  [NGINX + GCP GKE] |
+  | [*Coming soon*]() | [Monitor F5 AI Gateway with OTel, Prometheus/Grafana/Loki, Jaeger and MinIO](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/blob/main/Use%20Cases/AI%20Gateway/Prometheus-Grafana-Loki-Jaeger-monitoring/README.rst) |   [XC + AWS EKS](https://github.com/f5devcentral/F5-AI-Use-Case-Examples/tree/main/Use%20Cases/AI%20Gateway/Prometheus-Grafana-Loki-Jaeger-monitoring/EKS) [BIG-IP CIS + Azure AKS]  |
+  | [*Coming soon*]() | [AI Gateway Connection Abstraction]                         |  [NGINX + GCP GKE]  |
+  | [*Coming soon*]() | [AI Gateway Context Routing] |   [XC + AWS EKS]   |
+ | [*Coming soon*]() | [AI Gateway Prompt Injection Protection]                        |  [BIG-IP CIS + Azure AKS]   |
+
+ 
  
 
   
