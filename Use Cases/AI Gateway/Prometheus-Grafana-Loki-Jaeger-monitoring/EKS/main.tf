@@ -14,7 +14,6 @@ locals {
 
   f5_xc_chatbot_dns = "chatbot.example.com"
   f5_xc_minio_dns = "minio.example.com"
-  f5_xc_kibana_dns = "kibana.example.com"
   f5_xc_prometheus_dns = "prometheus.example.com"
   f5_xc_grafana_dns = "grafana.example.com"
   f5_xc_jaeger_dns = "jaeger.example.com"
