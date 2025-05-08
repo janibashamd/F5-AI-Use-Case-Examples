@@ -1,0 +1,12 @@
+mode: standalone
+defaultBuckets: "aigw-transactions"
+#provisioning:
+#  users:
+#    - username: aigw
+#      password: 8mhgtUweN7HM
+#      disabled: false
+#      policies:
+#        - readwrite
+#        # When set to true, it will replace all policies with the specified.
+#        # When false, the policies will be added to the existing.
+#      setPolicies: false
