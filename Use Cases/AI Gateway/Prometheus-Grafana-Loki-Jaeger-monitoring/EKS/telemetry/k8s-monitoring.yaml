@@ -1,5 +1,5 @@
 cluster:
-  name: "valentin-ai-gateway"  # Cluster configuration, including the cluster name
+  name: "ai-gateway"  # Cluster configuration, including the cluster name
 
 destinations:
   - name: hostedLogs
