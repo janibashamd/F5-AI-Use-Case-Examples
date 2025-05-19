@@ -11,11 +11,11 @@ locals {
 
   f5_xc_namespace = "aigw"
 
-  f5_xc_chatbot_dns = "chatbot.example.com"
-  f5_xc_minio_dns = "minio.example.com"
-  f5_xc_prometheus_dns = "prometheus.example.com"
-  f5_xc_grafana_dns = "grafana.example.com"
-  f5_xc_jaeger_dns = "jaeger.example.com"
+  f5_xc_chatbot_dns = ["chatbot.example.com"]
+  f5_xc_minio_dns = ["minio.example.com"]
+  f5_xc_prometheus_dns = ["prometheus.example.com"]
+  f5_xc_grafana_dns = ["grafana.example.com"]
+  f5_xc_jaeger_dns = ["jaeger.example.com"]
 
   tags = {}
 }
@@ -635,7 +635,7 @@ resource "volterra_origin_pool" "chatbot" {
 
   origin_servers {
     k8s_service {
-      service_name  = chatbot.chatbot
+      service_name  = "chatbot.chatbot"
       outside_network = true
       site_locator {
         site {
@@ -714,7 +714,7 @@ resource "volterra_origin_pool" "minio" {
 
   origin_servers {
     k8s_service {
-      service_name  = minio.audit
+      service_name  = "minio.audit"
       outside_network = true
       site_locator {
         site {
@@ -803,7 +803,7 @@ resource "volterra_origin_pool" "prometheus" {
 
   origin_servers {
     k8s_service {
-      service_name  = prometheus-server.prometheus
+      service_name  = "prometheus-server.prometheus"
       outside_network = true
       site_locator {
         site {
@@ -866,7 +866,7 @@ resource "volterra_origin_pool" "grafana" {
 
   origin_servers {
     k8s_service {
-      service_name  = grafana.prometheus
+      service_name  = "grafana.prometheus"
       outside_network = true
       site_locator {
         site {
@@ -930,7 +930,7 @@ resource "volterra_origin_pool" "jaeger" {
 
   origin_servers {
     k8s_service {
-      service_name  = jaeger-query.jaeger
+      service_name  = "jaeger-query.jaeger"
       outside_network = true
       site_locator {
         site {
