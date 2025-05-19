@@ -11,9 +11,9 @@ locals {
 
   f5_xc_namespace = "aigw"
 
-  f5_xc_chatbot_dns = "chatbot.example.com"
-  f5_xc_minio_dns = "minio.example.com"
-  f5_xc_kibana_dns = "kibana.example.com"
+  f5_xc_chatbot_dns = ["chatbot.example.com"]
+  f5_xc_minio_dns = ["minio.example.com"]
+  f5_xc_kibana_dns = ["kibana.example.com"]
 
   tags = {}
 }
@@ -597,7 +597,7 @@ resource "volterra_origin_pool" "chatbot" {
 
   origin_servers {
     k8s_service {
-      service_name  = chatbot.chatbot
+      service_name  = "chatbot.chatbot"
       outside_network = true
       site_locator {
         site {
@@ -676,7 +676,7 @@ resource "volterra_origin_pool" "minio" {
 
   origin_servers {
     k8s_service {
-      service_name  = minio.audit
+      service_name  = "minio.audit"
       outside_network = true
       site_locator {
         site {
@@ -764,7 +764,7 @@ resource "volterra_origin_pool" "kibana" {
 
   origin_servers {
     k8s_service {
-      service_name  = kibana-kibana.elastic
+      service_name  = "kibana-kibana.elastic"
       outside_network = true
       site_locator {
         site {
