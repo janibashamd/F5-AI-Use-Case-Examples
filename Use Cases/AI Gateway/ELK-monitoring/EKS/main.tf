@@ -4,7 +4,6 @@
 locals {
   name   = "ai-gateway"
 
-  # May require us-east-1 for public ECR where Karpenter artifacts are hosted
   region = "us-west-2"
 
   vpc_cidr   = "10.0.0.0/16"
@@ -28,10 +27,9 @@ provider "volterra" {
   url              = "https://<tenant_name>.console.ves.volterra.io/api"
 }
 
-# May require us-east-1 for public ECR where Karpenter artifacts are hosted
 provider "aws" {
-  region = local.region
-  alias  = local.region
+  region = "us-west-2"
+  alias  = "us-west-2"
 }
 
 
@@ -81,6 +79,12 @@ provider "kubectl" {
 ################################################################################
 # Data
 ################################################################################
+# us-east-1 required for public ECR where Karpenter artifacts are hosted
+provider "aws" {
+  region = "us-east-1"
+  alias  = "us-east-1"
+}
+
 data "aws_availability_zones" "available" {}
 
 data "aws_ecrpublic_authorization_token" "token" {
@@ -90,7 +94,7 @@ data "aws_ecrpublic_authorization_token" "token" {
 ################################################################################
 # Network
 ################################################################################
-local {
+locals {
   azs = slice(data.aws_availability_zones.available.names, 1, 3)
 }
 
