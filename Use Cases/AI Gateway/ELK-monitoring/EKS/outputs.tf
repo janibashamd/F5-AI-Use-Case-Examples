@@ -13,11 +13,6 @@ output "elastic_credentials" {
   value       = "For Kibana/Elasticsearch credentials, see elasticsearch-master-credentials secret under elastic namespace, keys: username, password (base64 decode)"
 }
 
-output "grafana_credentials" {
-  description = "For Grafana credentials, see grafana secret under prometheus namespace, keys: admin-user, admin-password (base64 decode)"
-  value       = "For Grafana credentials, see grafana secret under prometheus namespace, keys: admin-user, admin-password (base64 decode)"
-}
-
 output "minio_credentials" {
   description = "For MinIO credentials, see minio secret under elastic audit, keys: root-user, root-password (base64 decode)"
   value       = "For MinIO credentials, see minio secret under elastic audit, keys: root-user, root-password (base64 decode)"
