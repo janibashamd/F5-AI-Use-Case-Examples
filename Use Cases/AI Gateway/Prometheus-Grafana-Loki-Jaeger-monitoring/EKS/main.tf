@@ -687,7 +687,10 @@ resource "volterra_http_loadbalancer" "chatbot" {
         prefix = "/"
       }
       origin_pools {
-        pool = "chatbot"
+        pool {
+          name = "chatbot"
+          namespace = var.xc_namespace
+        }
       }
       advanced_options {
         web_socket_config {
@@ -766,7 +769,10 @@ resource "volterra_http_loadbalancer" "minio" {
         prefix = "/"
       }
       origin_pools {
-        pool = "minio"
+        pool { 
+          name = "minio"
+          namespace = var.xc_namespace
+        }
       }
       advanced_options {
         web_socket_config {
