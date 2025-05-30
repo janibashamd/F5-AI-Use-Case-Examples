@@ -378,7 +378,7 @@ resource "kubectl_manifest" "aigw-secrets" {
 resource "helm_release" "aigw" {
   name             = "aigw"
   repository       = "oci://private-registry.f5.com/aigw"
-  repository_username = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRyaWFsIn0.eyJpc3MiOiJuZ2lueCBpc3N1ZXIiLCJpYXQiOjE3Mzc0MTExMjMsImp0aSI6IjE5MDAyIiwic3ViIjoiSTAwMDEzNjIwMSIsImV4cCI6MTc2ODk0NzEyM30.JzMDw1sGWYMNW2A-nVGJSCX0yrqnEqD_mM2IAHTs_grCTRHhYmx6x-Cr6-guPSenBwS0YeEc4aI-l9VGH72VNOx6lGu1JNccoDQv0o0HmD3JPdqYcteElWMcMLdNu9RVlqrg9D2f1hbLtzNcWN_g8cBZq9ybhkm-RLh1C0c7x9GA1k9oEQtvOxhUufc6uQeJjUBer61klCCOkUjUR0YttVTOzXrKmBBi5A76WNpTRxQD82gFOLmcMYp-QZ3rffiS9eRqIoC-woNlk4rnr6c37zAbmXo_nwl5zw-iWFX_pQxbhtNCCzP_Yp7rN0gyS_iBOoeOFzO_p63HdfmaeoMLuP6RSKzauPMm89yNao_Uu8xWrjyRpCctsC6F1Ibjh4HG6quAC6E27xPpinGE9mdwc8BtiVqand6jegWzM_Vy0v0fAituok-St0f07xyhYfkV3GePY2DKP5mzLrle6YRFl-jir4e5QXcDXP7pudDHdxSNxno7LicFqEjMKLamEcEs"
+  repository_username = ""
   repository_password = "none"
   chart            = "aigw"
   namespace        = "ai-gateway"
