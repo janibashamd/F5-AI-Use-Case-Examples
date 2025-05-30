@@ -9,11 +9,11 @@ locals {
   vpc_cidr   = "10.0.0.0/16"
   num_of_azs = 2
 
-  f5_xc_namespace = "aigw"
+  f5_xc_namespace = "default"
 
-  f5_xc_chatbot_dns = ["chatbot.example.com"]
-  f5_xc_minio_dns = ["minio.example.com"]
-  f5_xc_kibana_dns = ["kibana.example.com"]
+  f5_xc_chatbot_dns = ["chatbot.f5-hyd-xcdemo.com"]
+  f5_xc_minio_dns = ["minio.f5-hyd-xcdemo.com"]
+  f5_xc_kibana_dns = ["kibana.f5-hyd-xcdemo.com"]
 
   tags = {}
 }
@@ -23,8 +23,8 @@ locals {
 ################################################################################
 
 provider "volterra" {
-  api_p12_file     = "</path/to/api_credential>.p12"
-  url              = "https://<tenant_name>.console.ves.volterra.io/api"
+  api_p12_file     = "./treino.p12"
+  url              = "https://treino.console.ves.volterra.io/api"
 }
 
 provider "aws" {
@@ -378,7 +378,7 @@ resource "kubectl_manifest" "aigw-secrets" {
 resource "helm_release" "aigw" {
   name             = "aigw"
   repository       = "oci://private-registry.f5.com/aigw"
-  repository_username = "<Your_NGINX-ONE-JWT-here>"
+  repository_username = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InRyaWFsIn0.eyJpc3MiOiJuZ2lueCBpc3N1ZXIiLCJpYXQiOjE3Mzc0MTExMjMsImp0aSI6IjE5MDAyIiwic3ViIjoiSTAwMDEzNjIwMSIsImV4cCI6MTc2ODk0NzEyM30.JzMDw1sGWYMNW2A-nVGJSCX0yrqnEqD_mM2IAHTs_grCTRHhYmx6x-Cr6-guPSenBwS0YeEc4aI-l9VGH72VNOx6lGu1JNccoDQv0o0HmD3JPdqYcteElWMcMLdNu9RVlqrg9D2f1hbLtzNcWN_g8cBZq9ybhkm-RLh1C0c7x9GA1k9oEQtvOxhUufc6uQeJjUBer61klCCOkUjUR0YttVTOzXrKmBBi5A76WNpTRxQD82gFOLmcMYp-QZ3rffiS9eRqIoC-woNlk4rnr6c37zAbmXo_nwl5zw-iWFX_pQxbhtNCCzP_Yp7rN0gyS_iBOoeOFzO_p63HdfmaeoMLuP6RSKzauPMm89yNao_Uu8xWrjyRpCctsC6F1Ibjh4HG6quAC6E27xPpinGE9mdwc8BtiVqand6jegWzM_Vy0v0fAituok-St0f07xyhYfkV3GePY2DKP5mzLrle6YRFl-jir4e5QXcDXP7pudDHdxSNxno7LicFqEjMKLamEcEs"
   repository_password = "none"
   chart            = "aigw"
   namespace        = "ai-gateway"
@@ -448,7 +448,7 @@ resource "helm_release" "otel-collector" {
 
   values = ["${file("telemetry/otel.collector.yaml")}"]
 
-  depends_on = [helm_release.grafana]
+  depends_on = [helm_release.kibana]
 }
 
 ################################################################################
@@ -480,7 +480,7 @@ resource "kubectl_manifest" "chatbot-ns" {
   count     = length(data.kubectl_path_documents.chatbot-ns-manifest.documents)
   yaml_body = element(data.kubectl_path_documents.chatbot-ns-manifest.documents, count.index)
 
-  depends_on = [kubectl_manifest.dvla-service]
+  depends_on = [data.kubectl_path_documents.chatbot-ns-manifest]
 }
 
 data "kubectl_path_documents" "chatbot-deployment-manifest" {
@@ -651,7 +651,7 @@ resource "volterra_http_loadbalancer" "chatbot" {
       origin_pools {
         pool {
           name = "chatbot"
-          namespace = var.xc_namespace
+          namespace = local.f5_xc_namespace
         }
       }
       advanced_options {
@@ -733,7 +733,7 @@ resource "volterra_http_loadbalancer" "minio" {
       origin_pools {
         pool {
           name =  "minio"
-          namespace = var.xc_namespace
+          namespace = local.f5_xc_namespace
         }
       }
       advanced_options {
@@ -746,8 +746,8 @@ resource "volterra_http_loadbalancer" "minio" {
 
   default_route_pools {
       pool {
-        name = volterra_origin_pool.op.name
-        namespace = var.xc_namespace
+        name = volterra_origin_pool.minio.name
+        namespace = local.f5_xc_namespace
       }
       weight = 1
   }
